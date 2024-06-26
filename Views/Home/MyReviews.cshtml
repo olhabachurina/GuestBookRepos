@@ -1,0 +1,51 @@
+﻿@model IEnumerable<GuestBookRepos.Models.Message>
+@{
+    ViewData["Title"] = "My Reviews";
+}
+
+<div class="container">
+    <h1>My Reviews</h1>
+
+    <form asp-action="AddMessage" method="post" class="mb-4">
+        <div class="form-group">
+            <label for="Name">Логин:</label>
+            <input type="text" id="Name" name="Name" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="Email">Email:</label>
+            <input type="email" id="Email" name="Email" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="WWW">WWW:</label>
+            <input type="url" id="WWW" name="WWW" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="Content">Отзыв:</label>
+            <textarea id="Content" name="Content" class="form-control" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Добавить отзыв</button>
+    </form>
+
+    @if (Model != null && Model.Any())
+    {
+        <div>
+            @foreach (var message in Model)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>@message.User.Name</strong>
+                        <span class="float-right">@message.MessageDate</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@message.Content</p>
+                        <p class="card-text"><small class="text-muted">@message.Email @message.WWW</small></p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No messages available.</p>
+    }
+</div>
