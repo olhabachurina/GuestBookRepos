@@ -16,5 +16,7 @@ namespace GuestBookRepos.Models
 
         [Required(ErrorMessage = "The Content field is required.")]
         public string Content { get; set; }
+        public User User { get; set; }  
+        public DateTime MessageDate { get; set; }
     }
 }

@@ -21,12 +21,12 @@ namespace GuestBookRepos.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddMessage(MessageViewModel model)
+        public async Task<IActionResult> AddMessage([FromBody] MessageViewModel model)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
-                return RedirectToAction("Login", "Account");
+                return Unauthorized("Please log in to add a message.");
             }
 
             if (ModelState.IsValid)
@@ -43,23 +43,33 @@ namespace GuestBookRepos.Controllers
                 };
 
                 await _repository.AddMessageAsync(newMessage);
-                return RedirectToAction("Index");
+
+                var messages = await _repository.GetAllMessagesAsync();
+                var html = RenderMessagesHtml(messages);
+                return Content(html, "text/html");
             }
 
-            var messages = await _repository.GetAllMessagesAsync();
-            return View("Index", messages);
+            return BadRequest("Invalid message data.");
         }
 
-        public async Task<IActionResult> MyReviews()
+        private string RenderMessagesHtml(IEnumerable<Message> messages)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
+            var html = string.Empty;
+            foreach (var message in messages)
             {
-                return RedirectToAction("Login", "Account");
+                html += $@"
+                    <div class='card mb-3'>
+                        <div class='card-header'>
+                            <strong>{message.User.Name}</strong>
+                            <span class='float-right'>{message.MessageDate}</span>
+                        </div>
+                        <div class='card-body'>
+                            <p class='card-text'>{message.Content}</p>
+                            <p class='card-text'><small class='text-muted'>{message.Email} {message.WWW}</small></p>
+                        </div>
+                    </div>";
             }
-
-            var messages = await _repository.GetMessagesByUserIdAsync(userId.Value);
-            return View(messages);
+            return html;
         }
     }
 }
